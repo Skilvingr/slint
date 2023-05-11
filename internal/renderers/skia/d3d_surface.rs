@@ -286,8 +286,6 @@ pub struct D3DSurface {
 }
 
 impl super::Surface for D3DSurface {
-    const SUPPORTS_GRAPHICS_API: bool = false;
-
     fn new(
         window: &dyn raw_window_handle::HasRawWindowHandle,
         _display: &dyn raw_window_handle::HasRawDisplayHandle,
@@ -422,10 +420,6 @@ impl super::Surface for D3DSurface {
         "d3d"
     }
 
-    fn with_graphics_api(&self, _cb: impl FnOnce(i_slint_core::api::GraphicsAPI<'_>)) {
-        unimplemented!()
-    }
-
     fn resize_event(
         &self,
         size: PhysicalWindowSize,
@@ -436,7 +430,7 @@ impl super::Surface for D3DSurface {
     fn render(
         &self,
         _size: PhysicalWindowSize,
-        callback: impl FnOnce(&mut skia_safe::Canvas, &mut skia_safe::gpu::DirectContext),
+        callback: &dyn Fn(&mut skia_safe::Canvas, &mut skia_safe::gpu::DirectContext),
     ) -> Result<(), i_slint_core::platform::PlatformError> {
         self.swap_chain
             .borrow_mut()
