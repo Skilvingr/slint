@@ -19,6 +19,7 @@ use vulkano::swapchain::{
 use vulkano::sync::{FlushError, GpuFuture};
 use vulkano::{sync, Handle, VulkanLibrary, VulkanObject};
 
+/// This surface renders into the given window using Vulkan.
 pub struct VulkanSurface {
     gr_context: RefCell<skia_safe::gpu::DirectContext>,
     recreate_swapchain: Cell<bool>,
