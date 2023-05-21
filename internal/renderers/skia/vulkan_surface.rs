@@ -149,6 +149,11 @@ impl VulkanSurface {
             swapchain_image_views: RefCell::new(swapchain_image_views),
         })
     }
+
+    /// Returns a clone of the shared swapchain.
+    pub fn swapchain(&self) -> Arc<Swapchain> {
+        self.swapchain.borrow().clone()
+    }
 }
 
 impl super::Surface for VulkanSurface {
@@ -370,6 +375,10 @@ impl super::Surface for VulkanSurface {
                 .into())
             }
         })
+    }
+
+    fn as_any(&self) -> &dyn core::any::Any {
+        self
     }
 }
 
