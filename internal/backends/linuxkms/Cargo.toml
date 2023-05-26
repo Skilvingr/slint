@@ -19,6 +19,7 @@ path = "lib.rs"
 i-slint-core = { version = "=1.0.3", path = "../../../internal/core" }
 i-slint-renderer-skia = { version = "=1.0.3", path = "../../renderers/skia", features = ["vulkan"] }
 vulkano = { version = "0.33.0", default-features = false }
+smithay = { version = "0.3.0", default-features = false, features = ["backend_drm", "backend_egl", "backend_gbm", "renderer_gl"] }
 
 [target.'cfg(not(any(target_family = "windows", target_os = "macos", target_os = "ios", target_arch = "wasm32")))'.dependencies]
 input = { version = "0.8.2" }

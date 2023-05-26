@@ -11,6 +11,7 @@ use i_slint_core::{platform::PlatformError, window::WindowAdapter};
 use i_slint_renderer_skia::SkiaRenderer;
 
 mod vulkandisplay;
+mod egldisplay;
 
 pub struct SkiaWindowAdapter {
     window: i_slint_core::api::Window,
@@ -41,7 +42,8 @@ impl i_slint_core::window::WindowAdapterSealed for SkiaWindowAdapter {
 
 impl SkiaWindowAdapter {
     pub fn new() -> Result<Rc<Self>, PlatformError> {
-        let (renderer, size) = vulkandisplay::create_skia_renderer_with_vulkan()?;
+        //let (renderer, size) = vulkandisplay::create_skia_renderer_with_vulkan().or_else(|_| egldisplay::create_skia_renderer_with_egl())?;
+        let (renderer, size) = egldisplay::create_skia_renderer_with_egl()?;
 
         Ok(Rc::<SkiaWindowAdapter>::new_cyclic(|self_weak| SkiaWindowAdapter {
             window: i_slint_core::api::Window::new(self_weak.clone()),
