@@ -11,10 +11,11 @@ pub struct FontDatabase {
     #[deref_mut]
     db: fontdb::Database,
     #[cfg(not(any(
-        target_family = "windows",
-        target_os = "macos",
-        target_os = "ios",
-        target_arch = "wasm32"
+    target_family = "windows",
+    target_os = "macos",
+    target_os = "ios",
+    target_os = "android",
+    target_arch = "wasm32"
     )))]
     pub fontconfig_fallback_families: Vec<String>,
     // Default font families to use instead of SansSerif when SLINT_DEFAULT_FONT env var is set.
@@ -56,10 +57,11 @@ thread_local! {
 }
 
 #[cfg(not(any(
-    target_family = "windows",
-    target_os = "macos",
-    target_os = "ios",
-    target_arch = "wasm32"
+target_family = "windows",
+target_os = "macos",
+target_os = "ios",
+target_os = "android",
+target_arch = "wasm32"
 )))]
 mod fontconfig;
 
@@ -109,20 +111,21 @@ fn init_fontdb() -> FontDatabase {
         (Default::default(), Default::default());
 
     #[cfg(not(any(
-        target_family = "windows",
-        target_os = "macos",
-        target_os = "ios",
-        target_arch = "wasm32"
+    target_family = "windows",
+    target_os = "macos",
+    target_os = "ios",
+    target_os = "android",
+    target_arch = "wasm32"
     )))]
     let mut fontconfig_fallback_families;
 
-    #[cfg(target_arch = "wasm32")]
+    #[cfg(any(target_os = "android", target_arch = "wasm32"))]
     {
         let data = include_bytes!("sharedfontdb/DejaVuSans.ttf");
         font_db.load_font_data(data.to_vec());
         font_db.set_sans_serif_family("DejaVu Sans");
     }
-    #[cfg(not(target_arch = "wasm32"))]
+    #[cfg(not(any(target_os = "android", target_arch = "wasm32")))]
     {
         font_db.load_system_fonts();
         cfg_if::cfg_if! {
@@ -130,6 +133,7 @@ fn init_fontdb() -> FontDatabase {
                 target_family = "windows",
                 target_os = "macos",
                 target_os = "ios",
+                target_os = "android",
                 target_arch = "wasm32"
             )))] {
                 let default_sans_serif_family = {
@@ -149,10 +153,11 @@ fn init_fontdb() -> FontDatabase {
     FontDatabase {
         db: font_db,
         #[cfg(not(any(
-            target_family = "windows",
-            target_os = "macos",
-            target_os = "ios",
-            target_arch = "wasm32"
+        target_family = "windows",
+        target_os = "macos",
+        target_os = "ios",
+        target_os = "android",
+        target_arch = "wasm32"
         )))]
         fontconfig_fallback_families,
         default_font_family_ids,
@@ -170,7 +175,7 @@ pub fn register_font_from_memory(data: &'static [u8]) -> Result<(), Box<dyn std:
     Ok(())
 }
 
-#[cfg(not(target_arch = "wasm32"))]
+#[cfg(not(any(target_os = "android", target_arch = "wasm32")))]
 pub fn register_font_from_path(path: &std::path::Path) -> Result<(), Box<dyn std::error::Error>> {
     let requested_path = path.canonicalize().unwrap_or_else(|_| path.to_owned());
     FONT_DB.with(|db| {
@@ -189,7 +194,7 @@ pub fn register_font_from_path(path: &std::path::Path) -> Result<(), Box<dyn std
     })
 }
 
-#[cfg(target_arch = "wasm32")]
+#[cfg(any(target_os = "android", target_arch = "wasm32"))]
 pub fn register_font_from_path(_path: &std::path::Path) -> Result<(), Box<dyn std::error::Error>> {
     return Err(std::io::Error::new(
         std::io::ErrorKind::Other,

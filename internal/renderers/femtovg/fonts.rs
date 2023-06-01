@@ -207,13 +207,13 @@ impl FontCache {
         // replacing files. Unlinking OTOH is safe and doesn't destroy the file mapping,
         // the backing file becomes an orphan in a special area of the file system. That works
         // on Unixy platforms and on Windows the default file flags prevent the deletion.
-        #[cfg(not(target_arch = "wasm32"))]
+        #[cfg(not(any(target_os = "android", target_arch = "wasm32")))]
         let (shared_data, face_index) = unsafe {
             sharedfontdb::FONT_DB.with(|db| {
                 db.borrow_mut().make_shared_face_data(fontdb_face_id).expect("unable to mmap font")
             })
         };
-        #[cfg(target_arch = "wasm32")]
+        #[cfg(any(target_os = "android", target_arch = "wasm32"))]
         let (shared_data, face_index) = crate::sharedfontdb::FONT_DB.with(|db| {
             db.borrow()
                 .face_source(fontdb_face_id)
@@ -426,10 +426,11 @@ impl FontCache {
     }
 
     #[cfg(not(any(
-        target_family = "windows",
-        target_os = "macos",
-        target_os = "ios",
-        target_arch = "wasm32"
+    target_family = "windows",
+    target_os = "macos",
+    target_os = "ios",
+    target_os = "android",
+    target_arch = "wasm32"
     )))]
     fn font_fallbacks_for_request(
         &self,
@@ -449,7 +450,7 @@ impl FontCache {
         })
     }
 
-    #[cfg(target_arch = "wasm32")]
+    #[cfg(any(target_os = "android", target_arch = "wasm32"))]
     fn font_fallbacks_for_request(
         &self,
         _family: Option<&SharedString>,
