@@ -68,6 +68,37 @@ pub fn create_gl_window_with_canvas_id(
     WinitWindowAdapter::new::<crate::renderer::femtovg::GlutinFemtoVGRenderer>(canvas_id)
 }
 
+#[cfg(target_os = "android")]
+#[no_mangle]
+pub fn android_init(
+    android_app: winit::platform::android::activity::AndroidApp,
+) -> Result<(), String> {
+
+    let mut quit = false;
+
+    event_loop::ANDROID_APP.set(android_app).map_err(|_| "android_init called twice");
+
+    while !quit {
+        if let Some(app) = event_loop::ANDROID_APP.get() {
+            app.poll_events(
+                Some(Duration::from_secs(1)),
+                |event| {
+                    use winit::platform::android::activity::{MainEvent, PollEvent};
+
+                    if let PollEvent::Main(main_event) = event {
+                        if let MainEvent::InitWindow{..} = main_event {
+                            quit = true;
+
+                        }
+                    }
+                }
+            );
+        }
+    }
+
+    Ok(())
+}
+
 fn window_factory_fn<R: WinitCompatibleRenderer + 'static>(
 ) -> Result<Rc<dyn WindowAdapter>, PlatformError> {
     WinitWindowAdapter::new::<R>(
