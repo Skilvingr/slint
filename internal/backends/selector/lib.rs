@@ -92,3 +92,6 @@ pub fn use_modules() {
     #[cfg(feature = "i-slint-backend-winit")]
     i_slint_backend_winit::use_modules();
 }
+
+#[cfg(all(feature = "i-slint-backend-winit", target_os = "android"))]
+pub use i_slint_backend_winit::android_init;

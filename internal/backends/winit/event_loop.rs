@@ -40,11 +40,18 @@ struct NotRunningEventLoop {
     event_loop_proxy: winit::event_loop::EventLoopProxy<SlintUserEvent>,
 }
 
+#[cfg(target_os = "android")]
+pub(crate) static ANDROID_APP: once_cell::sync::OnceCell<
+    winit::platform::android::activity::AndroidApp,
+> = once_cell::sync::OnceCell::new();
+
 impl NotRunningEventLoop {
     fn new() -> Self {
+
+        #[allow(unused_mut)]
         let mut builder = winit::event_loop::EventLoopBuilder::with_user_event();
 
-        #[cfg(all(unix, not(target_os = "macos")))]
+        #[cfg(all(unix, not(target_os = "macos"), not(target_os = "android")))]
         {
             #[cfg(feature = "wayland")]
             {
@@ -61,6 +68,14 @@ impl NotRunningEventLoop {
         {
             use winit::platform::windows::EventLoopBuilderExtWindows;
             builder.with_any_thread(true);
+        }
+
+        #[cfg(target_os = "android")]
+        {
+            use winit::platform::android::EventLoopBuilderExtAndroid;
+            builder.with_android_app(
+                ANDROID_APP.get().expect("android must be initialized with android_init").clone(),
+            );
         }
 
         let instance = builder.build();

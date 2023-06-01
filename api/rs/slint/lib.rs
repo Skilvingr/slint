@@ -256,6 +256,9 @@ pub use i_slint_core::sharedvector::SharedVector;
 pub use i_slint_core::timers::{Timer, TimerMode};
 pub use i_slint_core::{format, string::SharedString};
 
+#[cfg(target_os = "android")]
+pub use i_slint_backend_selector::android_init;
+
 pub mod private_unstable_api;
 
 /// Enters the main event loop. This is necessary in order to receive

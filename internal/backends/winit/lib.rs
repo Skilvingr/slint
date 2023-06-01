@@ -11,6 +11,7 @@ use i_slint_core::platform::EventLoopProxy;
 use i_slint_core::window::WindowAdapter;
 use renderer::WinitCompatibleRenderer;
 use std::rc::Rc;
+use std::time::Duration;
 
 mod winitwindowadapter;
 use i_slint_core::platform::PlatformError;
